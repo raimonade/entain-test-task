@@ -8,6 +8,7 @@ export const darkTheme = {
 		background: '#252525',
 		text: '#ffffff',
 		canvasBackground: '#232323',
+		modalBackground: 'rgba(235, 237, 238,.6)',
 	},
 };
 
@@ -19,5 +20,7 @@ export const lightTheme = {
 		background: '#fff',
 		text: '#252525',
 		canvasBackground: '#ebedee',
+		// modalBackground: 'rgba(35, 35, 35,.6)',
+		modalBackground: 'rgba(235, 237, 238,.6)',
 	},
 };

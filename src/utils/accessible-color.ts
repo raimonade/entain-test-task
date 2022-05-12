@@ -22,7 +22,6 @@ function hexToRgb(hex: string): RGB | undefined {
 		: undefined;
 }
 export function contrast(colorHex: string | undefined, threshold: number = 128): string {
-	console.log('colorHex', colorHex);
 	if (colorHex === undefined) {
 		return '#000';
 	}

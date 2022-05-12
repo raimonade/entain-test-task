@@ -8,10 +8,9 @@ import { darkTheme, lightTheme } from '@/styles/theme';
 import styled from '@emotion/styled';
 import { useDarkMode } from 'usehooks-ts';
 import DotGrid from '../DotGrid';
-import Navbar from '@/components/Navbar';
 
 const StyledMain = styled.main`
-	// margin-top: 5em;
+	/* // margin-top: 5em; */
 	height: 100%;
 	width: 100%;
 	z-index: 1;
@@ -27,8 +26,9 @@ const MainLayoutContainer = styled.div`
 `;
 
 function MainLayout(props: any) {
-	const darkMode = useDarkMode(false);
-	const currentTheme = darkMode.isDarkMode ? darkTheme : lightTheme;
+	// const darkMode = useDarkMode(false);
+	// const currentTheme = darkMode.isDarkMode ? darkTheme : lightTheme;
+	const currentTheme = lightTheme;
 
 	const [isMounted, setIsMounted] = React.useState(false);
 	React.useEffect(() => {
@@ -44,13 +44,13 @@ function MainLayout(props: any) {
 				{isMounted && (
 					<ThemeToggleContext.Provider
 						value={{
-							isDarkTheme: darkMode.isDarkMode,
-							toggleTheme: darkMode.toggle,
+							// isDarkTheme: darkMode.isDarkMode,
+							isDarkTheme: false,
+							toggleTheme: () => {},
 						}}
 					>
 						<DotGrid />
 
-						<Navbar />
 						<MainLayoutContainer>
 							<StyledMain>{props.children}</StyledMain>
 						</MainLayoutContainer>

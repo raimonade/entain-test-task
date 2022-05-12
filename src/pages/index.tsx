@@ -3,17 +3,19 @@ import Note from '@/components/Note';
 
 const Home = () => {
 	return (
-		<Board>
-			<Note />
-			<Note />
-			<Note />
-			<Note />
-			<Note />
-			<Note />
-			<Note />
-			<Note />
-			<Note />
-		</Board>
+		<>
+			<Board>
+				<Note />
+				<Note />
+				<Note />
+				<Note />
+				<Note />
+				<Note />
+				<Note />
+				<Note />
+				<Note />
+			</Board>
+		</>
 	);
 };
 

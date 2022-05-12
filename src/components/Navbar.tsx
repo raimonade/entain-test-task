@@ -34,7 +34,7 @@ const Navbar = () => {
 			<Container>
 				<Logo>CollabBoard</Logo>
 				<UserList />
-				<ThemeToggle />
+				{/* <ThemeToggle /> */}
 			</Container>
 		</Topbar>
 	);

@@ -4,24 +4,26 @@ import { postitColors } from '@/styles/colors';
 import { contrast } from '@/utils/accessible-color';
 import { motion } from 'framer-motion';
 
-const NoteWrapper = styled.div<{ bg: string; fg: string; owner: boolean }>`
+const NoteWrapper = styled.div`
 	position: relative;
 	flex-shrink: 0;
 	max-width: 200px;
 	max-height: 200px;
 	width: 200px;
 	height: 200px;
-	margin: 1em;
-	background: ${(props) => props.bg};
-	color: ${(props) => props.fg};
-	/* border: 1px solid ${(props) => props.fg}; */
-	border-radius: 10px;
 	padding: 20px;
 	padding-bottom: 40px;
-
 	display: flex;
 	overflow: hidden;
 	font-size: 18px;
+`;
+
+const NoteContainer = styled.div<{ bg: string; fg: string; owner: boolean }>`
+	position: absolute;
+	background: ${(props) => props.bg};
+	color: ${(props) => props.fg};
+	margin: 1em;
+	border-radius: 10px;
 	cursor: ${(props) => (!props.owner ? 'not-allowed' : 'pointer')};
 	/* border: 1px solid #00ff00; */
 	/* border: 1px solid #ffd700; */
@@ -30,10 +32,6 @@ const NoteWrapper = styled.div<{ bg: string; fg: string; owner: boolean }>`
 	span {
 		opacity: ${(props) => (props.owner ? 1 : 0.5)};
 	}
-`;
-
-const NoteContainer = styled.div`
-	position: absolute;
 `;
 
 const AnimatedNote = motion(NoteContainer);
@@ -61,7 +59,8 @@ const Toast = styled.span`
 	right: 10px;
 	bottom: 10px;
 	font-size: 15px;
-	font-weight: bold;
+	/* font-weight: bold; */
+	font-weight: 500;
 	text-align: center;
 	margin: 5px 10px;
 	-webkit-user-select: none;
@@ -105,8 +104,24 @@ const Note = () => {
 				x: 1000 * Math.random(),
 				y: 1000 * Math.random(),
 			}}
+			whileDrag={{
+				scale: 1.1,
+				zIndex: 2,
+			}}
+			style={{
+				zIndex: owner ? 1 : 0,
+			}}
+			whileTap={{
+				opacity: 1,
+				scale: 1.05,
+				boxShadow: '0px 5px 8px rgba(0, 0, 0, 0.2)',
+			}}
+			transition={{ duration: 0.3 }}
+			bg={bg}
+			fg={fg}
+			owner={owner}
 		>
-			<NoteWrapper bg={bg} fg={fg} owner={owner}>
+			<NoteWrapper>
 				<Toast color={fg}>
 					{/* {owner.toString()} */}
 					{normalizedName}

@@ -12,14 +12,16 @@
     "@emotion/react": "^11.9.0",
     "@emotion/styled": "^11.8.1",
     "@newhighsco/next-plugin-svgr": "^3.0.50",
+    "axios": "^0.27.2",
     "framer-motion": "^6.3.3",
+    "immer": "^9.0.14",
     "next": "12.1.6",
     "react": "18.1.0",
     "react-dom": "18.1.0",
     "socket.io-client": "^4.5.0",
     "twin.macro": "^2.8.2",
     "usehooks-ts": "^2.5.2",
-    "zustand": "^4.0.0-rc.1"
+    "zustand": "3"
   },
   "devDependencies": {
     "@emotion/babel-plugin": "^11.9.2",

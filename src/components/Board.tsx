@@ -1,5 +1,8 @@
+import useMousePosition from '@/hooks/useMousePosition';
+import { useConnect } from '@/providers/ConnectProvider';
 import styled from '@emotion/styled';
-import React from 'react';
+import React, { useEffect } from 'react';
+import Cursor from './Cursor';
 
 const BoardContainer = styled.div`
 	position: relative;
@@ -13,7 +16,28 @@ const BoardContainer = styled.div`
 `;
 
 const Board = ({ children }) => {
-	return <BoardContainer>{children}</BoardContainer>;
+	const { socketRef } = useConnect();
+	const { x, y } = useMousePosition();
+
+	useEffect(() => {
+		if (socketRef.current) {
+			const element = { coords: { x, y }, status: 'default', socketId: socketRef.current.id };
+			socketRef.current.emit('onMouseUpdate', element);
+		}
+	}, [socketRef.current, x, y]);
+
+	return (
+		<BoardContainer>
+			{children}
+			<Cursor></Cursor>
+			<Cursor></Cursor>
+			<Cursor></Cursor>
+			<Cursor></Cursor>
+			<Cursor></Cursor>
+			<Cursor></Cursor>
+			<Cursor></Cursor>
+		</BoardContainer>
+	);
 };
 
 export default Board;

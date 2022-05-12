@@ -19,6 +19,11 @@ export const globalStyles = (
 				/* overflow-y: auto; */
 			}
 
+			* {
+				margin: 0;
+				padding: 0;
+			}
+
 			#__next {
 				position: relative;
 				width: 100%;
