@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState, memo, useMemo, useRef } from 'react';
 import styled from '@emotion/styled';
 import { postitColors } from '@/styles/colors';
 import { contrast } from '@/utils/accessible-color';
 import { motion } from 'framer-motion';
+import { useOnClickOutside } from 'usehooks-ts';
+import { useStore } from '@/store/appStore';
 
 const NoteWrapper = styled.div`
 	position: relative;
@@ -22,7 +24,7 @@ const NoteContainer = styled.div<{ bg: string; fg: string; owner: boolean }>`
 	position: absolute;
 	background: ${(props) => props.bg};
 	color: ${(props) => props.fg};
-	margin: 1em;
+	margin: 20px;
 	border-radius: 10px;
 	cursor: ${(props) => (!props.owner ? 'not-allowed' : 'pointer')};
 	/* border: 1px solid #00ff00; */
@@ -45,6 +47,29 @@ const Text = styled.span`
 	-ms-hyphens: auto;
 	hyphens: auto;
 	word-wrap: break-word;
+	width: 100%;
+	height: 100%;
+
+	p,
+	textarea {
+		font-size: inherit;
+		width: 100%;
+		height: 100%;
+	}
+`;
+
+const TextInput = styled.textarea`
+	background: none;
+	border: none;
+	transition: all 0.3s ease;
+	border-radius: 5px;
+	padding: 5px;
+	width: calc(100% - 10px);
+	box-sizing: border-box;
+	&:focus {
+		outline: none;
+		box-shadow: 0 0 0 2px rgba(23, 23, 23, 0.6);
+	}
 `;
 
 const Toast = styled.span`
@@ -69,19 +94,27 @@ const Toast = styled.span`
 	user-select: none;
 `;
 
-const Note = () => {
-	const bg =
-		Object.values(postitColors)[Math.floor(Math.random() * Object.values(postitColors).length)];
-	const fg = contrast(bg);
-	const owner = Math.random() > 0.5;
-	const name = 'Rai';
-	const text = `				placeholdertextplaceholdertextplaceholdertextplaceholdertext
-	placeholdertextplaceholdertextplaceholdertextplaceholdertext
-	placeholdertextplaceholdertextplaceholdertextplaceholdertext
-	placeholdertextplaceholdertextplaceholdertextplaceholdertext
-	placeholdertextplaceholdertextplaceholdertextplaceholdertext`;
-	const normalizedName = name.length > 20 ? name.slice(0, 17) + '...' : name;
-	const normalizedText = text.length > 260 ? text.slice(0, 260) + '...' : text;
+const Note = ({
+	text = '',
+	initialX = 0,
+	initialY = 0,
+	colors = { fgColor: postitColors.default, bgColor: '#000' },
+}) => {
+	const ref = useRef(null);
+
+	// const owner = Math.random() > 0.5;
+	const owner = true;
+	// const name = 'Rai';
+	// const normalizedName = name.length > 20 ? name.slice(0, 17) + '...' : name;
+	const [toggle, setToggle] = useState(false);
+	const { focused, setFocused } = useStore();
+	const [contents, setContents] = useState(text);
+	// console.log(colors, 'colors');x
+	useOnClickOutside(ref, () => {
+		setToggle(true);
+		// setFocused(false);
+		console.log('clicked outside note');
+	});
 
 	function downscale(
 		length: number,
@@ -94,43 +127,92 @@ const Note = () => {
 			Math.max(scalingFactor * (baseFontSize - minFontSize) + minFontSize, minFontSize)
 		);
 	}
-	const fontSize = downscale(text.length, 260, 34, 16);
+	const fontSize = useMemo(
+		() => (contents?.length > 0 ? downscale(contents?.length, 220, 24, 16) : 14),
+		[contents]
+	);
 
 	return (
 		<AnimatedNote
-			drag={owner}
+			drag={owner && toggle}
 			dragMomentum={false}
 			initial={{
-				x: 1000 * Math.random(),
-				y: 1000 * Math.random(),
+				x: initialX - 20,
+				y: initialY - 40,
 			}}
 			whileDrag={{
-				scale: 1.1,
+				scale: 1.07,
 				zIndex: 2,
 			}}
 			style={{
 				zIndex: owner ? 1 : 0,
 			}}
-			whileTap={{
-				opacity: 1,
-				scale: 1.05,
-				boxShadow: '0px 5px 8px rgba(0, 0, 0, 0.2)',
-			}}
-			transition={{ duration: 0.3 }}
-			bg={bg}
-			fg={fg}
+			whileTap={
+				owner && toggle
+					? {
+							opacity: 1,
+							scale: 1.03,
+							boxShadow: '0px 5px 8px rgba(0, 0, 0, 0.2)',
+					  }
+					: null
+			}
+			// transition={{ duration: 0.2 }}
+			bg={colors.bgColor}
+			fg={colors.fgColor}
 			owner={owner}
 		>
 			<NoteWrapper>
-				<Toast color={fg}>
-					{/* {owner.toString()} */}
-					{normalizedName}
-				</Toast>
+				{/* <Toast color={colors.fgColor}> */}
+				{/* {owner.toString()} */}
+				{/* {normalizedName} */}
+				{/* </Toast> */}
 
-				<Text style={{ fontSize: fontSize }}>{normalizedText}</Text>
+				{/* <Text 
+				
+				>{normalizedText}</Text> */}
+				<Text style={{ fontSize: fontSize }}>
+					{toggle ? (
+						<p
+							onDoubleClick={() => {
+								if (owner) {
+									setToggle(false);
+									setFocused(true);
+								}
+							}}
+						>
+							{contents.length > 220 ? contents.slice(0, 220) + '...' : contents}
+						</p>
+					) : (
+						<TextInput
+							ref={ref}
+							onChange={(event) => {
+								if (event.target.value.length < 220) {
+									setContents(event.target.value);
+								}
+							}}
+							onKeyDown={(event) => {
+								if (event.keyCode == 13 && event.shiftKey) {
+									return;
+								}
+								if (event.key === 'Enter' || event.key === 'Escape') {
+									setToggle(true);
+									setFocused(false);
+									event.preventDefault();
+									event.stopPropagation();
+								}
+							}}
+							value={contents}
+							style={{ resize: 'none', width: '100%', height: '100%' }}
+							autoFocus={true}
+							onFocus={() => {
+								setFocused(true);
+							}}
+						/>
+					)}
+				</Text>
 			</NoteWrapper>
 		</AnimatedNote>
 	);
 };
 
-export default Note;
+export default memo(Note);

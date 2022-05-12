@@ -1,20 +1,55 @@
-import React from 'react';
+import React, { memo, useMemo } from 'react';
 import { ReactComponent as CursorIcon } from '@/assets/cursor.svg';
 import styled from '@emotion/styled';
+import { useStore } from '@/store/appStore';
 
-const CursorContainer = styled.div`
+const CursorContainer = styled.div<{ bgColor: string; fgColor: string; x: number; y: number }>`
+	position: absolute;
+	transform: translate(${(props) => props.x}px, ${(props) => props.y}px);
+	--bg-color: ${(props) => props.bgColor};
+	--fg-color: ${(props) => props.fgColor};
 	svg {
 		width: 20px;
 		height: auto;
+		path {
+			fill: var(--bg-color);
+		}
 	}
 `;
 
-const Cursor = () => {
+const Username = styled.span`
+	font-size: 12px;
+	font-weight: 500;
+	color: var(--fg-color);
+	background-color: var(--bg-color);
+	padding: 5px;
+`;
+
+const Cursor = ({ content }) => {
+	const { userList } = useStore();
+	const matchingUser = useMemo(() => {
+		// find a matching user object in userlist array with content.socketId,
+		// users socketId might be a string or an array
+		const matchingUser = userList?.find((user) => {
+			if (Array.isArray(user._socketId)) {
+				return user._socketId.includes(content.socketId);
+			}
+			return user._socketId === content.socketId;
+		});
+		return matchingUser;
+	}, [userList, content.socketId]);
+
 	return (
-		<CursorContainer>
+		<CursorContainer
+			x={content?.coords?.x}
+			y={content?.coords?.y}
+			bgColor={matchingUser?.colors?.bgColor}
+			fgColor={matchingUser?.colors?.fgColor}
+		>
 			<CursorIcon></CursorIcon>
+			{matchingUser && <Username>{matchingUser._name}</Username>}
 		</CursorContainer>
 	);
 };
 
-export default Cursor;
+export default memo(Cursor);

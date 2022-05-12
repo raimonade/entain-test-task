@@ -55,14 +55,6 @@ export const ConnectProvider = ({ children }) => {
 				console.log('Got Cursors!', cursors);
 				setCursors(cursors);
 			});
-			socketRef.current.on('onmouseupdate', (cursor: any) => {
-				// console.log('cursorupdate!', cursor);
-				if (cursor.socketId === socketRef.current.id) {
-					return;
-				}
-
-				// setUserList(userList);
-			});
 
 			// 	// update chat on new message dispatched
 			// 	socket.on("message", (message: IMsg) => {

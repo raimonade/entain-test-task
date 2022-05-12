@@ -6,7 +6,8 @@ import { ReactComponent as Cross } from '@/assets/cross.svg';
 const ModalHeader = styled.div`
 	display: flex;
 	margin-bottom: 12px;
-	height: 50px;
+	height: 40px;
+	transform: translateX(-2px);
 `;
 
 const ModalBody = styled.div`
@@ -21,8 +22,8 @@ const ModalBody = styled.div`
 const Button = styled.button`
 	all: unset;
 	position: absolute;
-	top: 17px;
-	right: 17px;
+	top: 0px;
+	right: 0px;
 	cursor: pointer;
 	svg {
 		fill: ${({ theme }) => theme.color.text};

@@ -9,29 +9,43 @@ import { usePersistentStore } from '@/store/persistentstore';
 
 const Label = styled.label`
 	display: flex;
+	flex-direction: column;
 	justify-content: space-between;
-	align-items: center;
-	font-size: 14px;
+	/* align-items: center; */
+	font-size: 16px;
 	font-weight: 300;
 	color: #59596b;
 `;
 
 const Container = styled.div``;
+const LabelContainer = styled.div`
+	position: relative;
+`;
 
 const Input = styled.input`
-	margin-left: 20px;
+	/* margin-left: 20px; */
 	height: 30px;
 	width: 100%;
 	border-radius: 5px;
 	border: 1px solid lightgray;
 	padding: 0 10px;
+	width: calc(100% - 20px);
 `;
 
 const ErrorLabel = styled.div`
+	position: absolute;
+	bottom: -20px;
 	margin-top: 10px;
 	display: flex;
 	color: red;
 	font-size: 12px;
+`;
+const SmallText = styled.div`
+	margin-top: 5px;
+	margin-bottom: 10px;
+	display: flex;
+	color: gray;
+	font-size: 13px;
 `;
 
 const ButtonWrapper = styled.div`
@@ -63,7 +77,7 @@ const ModalContent = () => {
 		console.log('REGISTERING USER:', username);
 
 		await axios
-			.post(`${process.env.API_URL}/api/register/${username}`)
+			.post(`${process.env.API_URL}/api/register/${username.toString()}`)
 			.catch((e) => {
 				console.error('FAILED REGISTRATION:', e);
 				return;
@@ -76,16 +90,24 @@ const ModalContent = () => {
 	return (
 		<Container>
 			<Label htmlFor="">
-				<span>Username</span>
-				<Input
-					onChange={(e) => {
-						e.preventDefault();
-						setUsername(e.target.value);
-					}}
-					value={username}
-				/>
+				<LabelContainer>
+					<span>Username</span>
+					<SmallText>Please choose a username between 3 and 20 characters</SmallText>
+					<Input
+						onChange={(e) => {
+							e.preventDefault();
+							setError('username', null);
+							if (e.target.value.length > 20) {
+								setError('username', 'Username must be at most 20 characters');
+								return;
+							}
+							setUsername(e.target.value);
+						}}
+						value={username}
+					/>
+					<ErrorLabel>{errors?.username && errors.username}</ErrorLabel>
+				</LabelContainer>
 			</Label>
-			<ErrorLabel>{errors?.username && errors.username}</ErrorLabel>
 			<ButtonWrapper>
 				<DefaultButton action={handleSubmit} text={'Register'} />
 			</ButtonWrapper>

@@ -13,7 +13,7 @@ export const globalStyles = (
 				margin: 0;
 				min-height: 100%;
 				font-family: Helvetica, Arial, sans-serif;
-				font-size: 24px;
+				font-size: 14px;
 				/* overflow: hidden; */
 				/* overflow-x: auto; */
 				/* overflow-y: auto; */
@@ -22,6 +22,11 @@ export const globalStyles = (
 			* {
 				margin: 0;
 				padding: 0;
+				font-family: Helvetica, Arial, sans-serif;
+			}
+
+			textarea {
+				font-size: 14px;
 			}
 
 			#__next {

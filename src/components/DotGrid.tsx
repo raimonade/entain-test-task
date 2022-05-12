@@ -3,7 +3,8 @@ import React from 'react';
 import { useDarkMode } from 'usehooks-ts';
 
 const Dots = styled.div<{ dark: boolean }>`
-	background-image: url(${({ dark }) => (dark ? './dot-darkmode.png' : './dot.png')});
+	/* background-image: url(${({ dark }) => (dark ? './dot-darkmode.png' : './dot.png')}); */
+	background-image: url(./dot.png);
 	background-color: ${(props) => props.theme.color.canvasBackground};
 	background-position: -2px -2px;
 	background-size: 10px 10px;
@@ -26,7 +27,9 @@ const Dots = styled.div<{ dark: boolean }>`
 
 const DotGrid = () => {
 	const darkmode = useDarkMode();
-	return <Dots dark={darkmode.isDarkMode} />;
+	return (
+		<Dots dark={darkmode.isDarkMode}>DOTS DOTS DOTS DOTS DOTS DOTS DOTS DOTS DOTS DOTS</Dots>
+	);
 };
 
 export default DotGrid;
