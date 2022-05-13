@@ -4,7 +4,7 @@ import { motion, useSpring } from 'framer-motion';
 // import { useOnClickOutside } from 'usehooks-ts';
 import { useStore } from '@/store/appStore';
 import { usePersistentStore } from '@/store/persistentstore';
-import { ReactComponent as TrashIcon } from '@/assets/trash.svg';
+// import { ReactComponent as TrashIcon } from '@/assets/trash.svg';
 // import { useConnect } from '@/providers/ConnectProvider';
 import { User } from '@/components/UserList';
 // import useMousePosition from '@/hooks/useMousePosition';
@@ -38,25 +38,25 @@ const NoteContainer = styled.div<{ bg: string; fg: string; isOwner: boolean }>`
 
 const AnimatedNote = motion(NoteContainer);
 
-const DeleteButton = styled.button`
-	position: absolute;
-	bottom: 10px;
-	left: 10px;
-	width: 32px;
-	height: 32px;
-	background: none;
-	pointer: cursor;
-	border: none;
-	background: rgba(23, 23, 23, 0.5);
-	border-radius: 5px;
-	padding: 2px;
-	z-index: 20;
-	svg {
-		path {
-			fill: white;
-		}
-	}
-`;
+// const DeleteButton = styled.button`
+// 	position: absolute;
+// 	bottom: 10px;
+// 	left: 10px;
+// 	width: 32px;
+// 	height: 32px;
+// 	background: none;
+// 	pointer: cursor;
+// 	border: none;
+// 	background: rgba(23, 23, 23, 0.5);
+// 	border-radius: 5px;
+// 	padding: 2px;
+// 	z-index: 20;
+// 	svg {
+// 		path {
+// 			fill: white;
+// 		}
+// 	}
+// `;
 
 const Text = styled.span`
 	-webkit-user-select: none;
@@ -114,7 +114,8 @@ const Toast = styled.span`
 	user-select: none;
 `;
 
-const Note = ({ content, onNoteUpdate, onNoteRemove = null }) => {
+// const Note = ({ content, onNoteUpdate, onNoteRemove = null }) => {
+const Note = ({ content, onNoteUpdate }) => {
 	const ref = useRef(null);
 	const { user } = usePersistentStore();
 	// const isOwner = Math.random() > 0.5;
