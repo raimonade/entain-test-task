@@ -4,10 +4,14 @@ import { useStore } from '@/store/appStore';
 import { postitColors } from '@/styles/colors';
 import { contrast } from '@/utils/accessible-color';
 import styled from '@emotion/styled';
-import React, { memo, useEffect, useState } from 'react';
-import Cursor from './Cursor';
+import React, { memo, useEffect, useRef, useState } from 'react';
 import Cursors from './Cursors';
+import { v4 as uuidv4 } from 'uuid';
 import Note from './Note';
+import Coords from '@/models/coords';
+import { usePersistentStore } from '@/store/persistentstore';
+import ClientNoteData from '@/models/clientNoteData';
+import shallow from 'zustand/shallow';
 
 const BoardContainer = styled.div<{ cursor: string }>`
 	position: relative;
@@ -21,12 +25,35 @@ const BoardContainer = styled.div<{ cursor: string }>`
 	cursor: ${({ cursor }) => cursor};
 `;
 
+function Component({ index, onNoteUpdate }) {
+	const dataRef = useRef(useStore.getState().notes[index]);
+	// Connect to the store on mount, disconnect on unmount, catch state-changes in a reference
+	useEffect(() => useStore.subscribe((state) => (dataRef.current = state.notes[index])), []);
+	return <Note content={dataRef.current} onNoteUpdate={onNoteUpdate} />;
+	// return <div>NOTE</div>;
+}
+
+const MemoizedComponent = memo(Component);
+
 const Board = () => {
 	const { socketRef } = useConnect();
-	const { focused, notes, setFocused } = useStore();
+	const {} = useStore();
+	const { focused, updateNote, setFocused, addNote } = useStore(
+		(state) => ({
+			focused: state.focused,
+			updateNote: state.updateNote,
+			setFocused: state.setFocused,
+			addNote: state.addNote,
+		}),
+		shallow
+	);
+	const notes = useStore((state) => state.notes);
 	const [cursor, setCursor] = useState('default');
-	const [items, setItems] = useState(notes);
-	// dont merge items, create a completely seperate item
+	const { user } = usePersistentStore();
+	// console.log('notes', notes);
+
+	// const noteRef = useRef(useStore.getState().notes);
+
 	useEffect(() => {
 		if (focused) {
 			setCursor('text');
@@ -35,31 +62,7 @@ const Board = () => {
 		setCursor('default');
 	}, [focused]);
 
-	useEffect(() => {
-		if (notes) {
-			setItems(notes);
-			return;
-		}
-	}, [notes]);
-
-	const onNoteCreate = async (text, x, y, colors, user) => {
-		console.log('NEW NOTE');
-		socketRef.current.emit('newNote', {
-			text: text,
-			position: {
-				x,
-				y,
-			},
-			colors: {
-				fgColor: colors.fgColor,
-				bgColor: colors.bgColor,
-			},
-			owner: user.username,
-		});
-	};
-
-	const onNoteUpdate = async () => {};
-
+	// const createNewNote = (position:Coords, colour: string) => {
 	const createNewNote = (e) => {
 		// // add lorem ipsum object to notes
 		console.log(focused);
@@ -75,40 +78,45 @@ const Board = () => {
 				Math.floor(Math.random() * Object.values(postitColors).length)
 			];
 		const fg = contrast(bg);
-		setItems([
-			...items,
-			{
-				text: '',
-				_position: {
-					x: e.clientX - 100,
-					y: e.clientY - 100,
-				},
-				_colors: {
-					bgColor: bg,
-					fgColor: fg,
-				},
-				owner: '',
+		const data = {
+			id: uuidv4(),
+			position: {
+				x: e.clientX - 100,
+				y: e.clientY - 100,
 			},
-		]);
+			colors: {
+				bgColor: bg,
+				fgColor: fg,
+			},
+			text: '',
+			owner: user.username,
+		};
+		addNote(data);
+		socketRef.current.emit('newNote', {
+			data,
+		});
 	};
+
+	const onNoteUpdate = async (data: ClientNoteData) => {
+		// updateNote(data);
+		console.log(data);
+		socketRef.current.emit('onNoteUpdate', {
+			data,
+		});
+	};
+
+	// Connect to the store on mount, disconnect on unmount, catch state-changes in a reference
 
 	return (
 		<BoardContainer onClick={createNewNote} cursor={cursor}>
 			<Cursors></Cursors>
-			{items?.map((note, i) => (
-				<Note
-					key={i}
-					colors={note._colors}
-					text={note.text}
-					initialX={note._position.x}
-					initialY={note._position.y}
-					ownerName={note.owner}
-					onNoteCreate={onNoteCreate}
-					onNoteUpdate={onNoteUpdate}
-				/>
+			{notes?.map((note, i) => (
+				<Component onNoteUpdate={onNoteUpdate} key={note.id} index={i} />
+				// <h1 key={i}>NOTE</h1>
 			))}
 		</BoardContainer>
 	);
 };
 
 export default memo(Board);
+// export default Board;

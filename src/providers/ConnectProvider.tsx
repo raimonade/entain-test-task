@@ -25,7 +25,7 @@ export const useConnect = () => {
 export const ConnectProvider = ({ children }) => {
 	// const [state, setState] = useState({ component: null, props: null });
 	const [connected, setConnected] = useState<boolean>(false);
-	const { setCursors, setNotes, userList, setUserList } = useStore();
+	const { setCursors, setNotes, updateNote, addNote, setUserList } = useStore();
 	const { user, updateUser } = usePersistentStore();
 	const socketRef = useRef(null);
 	// @ts-ignore
@@ -58,6 +58,14 @@ export const ConnectProvider = ({ children }) => {
 			socketRef.current.on('notes', (notes: any) => {
 				console.log('Got Notes!', notes);
 				setNotes(notes);
+			});
+			socketRef.current.on('onnewnote', (note: any) => {
+				console.log('Got New Note!', note);
+				addNote(note);
+			});
+			socketRef.current.on('onnoteupdate', (note: any) => {
+				console.log('Note Update!', note);
+				updateNote(note);
 			});
 
 			// 	// update chat on new message dispatched

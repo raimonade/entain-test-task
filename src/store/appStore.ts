@@ -13,6 +13,8 @@ export interface IAppStore {
 	notes: any;
 	cursors: any;
 	setNotes(notes: any): void;
+	addNote(note: any): void;
+	updateNote(note: any): void;
 	setCursors(cursors: any): void;
 	updateCursor(data: ClientCursorData): void;
 	userList: ClientUser[];
@@ -56,6 +58,26 @@ const store = (set) =>
 		setNotes: (notes: any) => {
 			set((state) => {
 				state.notes = notes;
+			});
+		},
+		addNote: (note: any) => {
+			set((state) => {
+				if (state.notes?.length > 0) {
+					state.notes.push(note);
+				} else {
+					state.notes = [note];
+				}
+			});
+		},
+		updateNote: (note: any) => {
+			set((state) => {
+				const index = state.notes.findIndex((n) => n.id === note.id);
+				if (index > -1) {
+					// console.log(index);
+					state.notes[index].text = note.text;
+					state.notes[index].colors = note.colors;
+					state.notes[index].position = note.position;
+				}
 			});
 		},
 		updateCursor: (data: ClientCursorData) => {

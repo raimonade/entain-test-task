@@ -2,7 +2,7 @@ import React, { useState, memo, useMemo, useRef, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { postitColors } from '@/styles/colors';
 import { contrast } from '@/utils/accessible-color';
-import { motion } from 'framer-motion';
+import { motion, useSpring } from 'framer-motion';
 import { useOnClickOutside } from 'usehooks-ts';
 import { useStore } from '@/store/appStore';
 import { usePersistentStore } from '@/store/persistentstore';
@@ -22,19 +22,19 @@ const NoteWrapper = styled.div`
 	font-size: 18px;
 `;
 
-const NoteContainer = styled.div<{ bg: string; fg: string; owner: boolean }>`
+const NoteContainer = styled.div<{ bg: string; fg: string; isOwner: boolean }>`
 	position: absolute;
 	background: ${(props) => props.bg};
 	color: ${(props) => props.fg};
 	margin: 20px;
 	border-radius: 10px;
-	cursor: ${(props) => (!props.owner ? 'not-allowed' : 'pointer')};
+	cursor: ${(props) => (!props.isOwner ? 'not-allowed' : 'pointer')};
 	/* border: 1px solid #00ff00; */
 	/* border: 1px solid #ffd700; */
-	border: ${(props) => (!props.owner ? 'none' : '3px solid' + props.theme.color.text)};
+	border: ${(props) => (!props.isOwner ? 'none' : '3px solid' + props.theme.color.text)};
 
 	span {
-		opacity: ${(props) => (props.owner ? 1 : 0.5)};
+		opacity: ${(props) => (props.isOwner ? 1 : 0.5)};
 	}
 `;
 
@@ -96,40 +96,44 @@ const Toast = styled.span`
 	user-select: none;
 `;
 
-const Note = ({
-	id = null,
-	text = '',
-	initialX = 0,
-	initialY = 0,
-	colors = { fgColor: postitColors.default, bgColor: '#000' },
-	ownerName = '',
-	onNoteCreate,
-	onNoteUpdate,
-}) => {
+const Note = ({ content, onNoteUpdate }) => {
 	const ref = useRef(null);
 	const { socketRef } = useConnect();
 	const { user } = usePersistentStore();
-	// const owner = Math.random() > 0.5;
-	const owner = ownerName === user.username || ownerName === '';
+	// const isOwner = Math.random() > 0.5;
+	const isOwner = content?.owner === user.username;
 	// const name = 'Rai';
 	// const normalizedName = name.length > 20 ? name.slice(0, 17) + '...' : name;
-	const [toggle, setToggle] = useState(false);
+	const [toggle, setToggle] = useState(isOwner ? false : true);
 	const { focused, setFocused } = useStore();
-	const [contents, setContents] = useState(text);
-	const [pos, setPos] = useState([initialX, initialY]);
-	// console.log(colors, 'colors');x
+	const [contents, setContents] = useState(content?.text);
+	const [dragging, setDragging] = useState(false);
+	const config = {
+		duration: 0.3,
+	};
+	const x = useSpring(0, config);
+	const y = useSpring(0, config);
+
+	useEffect(() => {
+		// setPos([content?.position?.x, content?.position?.y]);
+		x.set(content?.position?.x);
+		y.set(content?.position?.y);
+		setContents(content?.text);
+		console.log(content.position);
+	}, [content.position]);
+
 	useOnClickOutside(ref, () => {
 		setToggle(true);
 		// setFocused(false);
-		onConfirm();
+		onNoteUpdate({
+			...content,
+			position: {
+				x: x.get(),
+				y: y.get(),
+			},
+			text: contents,
+		});
 	});
-
-	const onConfirm = () => {
-		if (!ownerName && onNoteCreate) {
-			// 	console.log('EMIT NEW NOTE');
-			onNoteCreate(contents, pos[0], pos[1], colors, user);
-		}
-	};
 
 	function downscale(
 		length: number,
@@ -148,30 +152,32 @@ const Note = ({
 	);
 
 	// useEffect(() => {
-	// 	console.log('owner', ownerName);
+	// 	console.log('isOwner', isOwnerName);
 	// 	console.log('focused', focused);
 	// 	console.log('onNoteCreate', onNoteCreate);
 
 	// 	// setUserList(userList);
-	// }, [ownerName, pos, colors, contents, user, focused, onNoteCreate]);
+	// }, [isOwnerName, pos, colors, contents, user, focused, onNoteCreate]);
 
 	return (
 		<AnimatedNote
-			drag={owner && toggle}
+			drag={isOwner && toggle}
 			dragMomentum={false}
-			initial={{
-				x: initialX - 20,
-				y: initialY - 40,
-			}}
+			// initial={{
+			// 	x: pos[0] - 20,
+			// 	y: pos[1] - 40,
+			// }}
 			whileDrag={{
 				scale: 1.07,
 				zIndex: 2,
 			}}
 			style={{
-				zIndex: owner ? 1 : 0,
+				zIndex: isOwner ? 1 : 0,
+				x,
+				y,
 			}}
 			whileTap={
-				owner && toggle
+				isOwner && toggle
 					? {
 							opacity: 1,
 							scale: 1.03,
@@ -183,27 +189,41 @@ const Note = ({
 			// so ignoring that shit bc i cba to fix it properly atm
 			// @ts-ignore
 			onDrag={(event, info) => {
-				const x = pos[0] - info.offset.x;
-				const y = pos[1] - info.offset.y;
-				onNoteUpdate(id, { x, y });
+				x.set(info?.point?.x - 100);
+				y.set(info?.point?.y - 100);
+				// setPos([x, y]);
+				onNoteUpdate({
+					...content,
+					position: {
+						x: x.get(),
+						y: y.get(),
+					},
+					text: contents,
+				});
 			}}
 			// @ts-ignore
 			onDragEnd={(event, info) => {
-				const x = pos[0] - info.offset.x;
-				const y = pos[1] - info.offset.y;
-				setPos([x, y]);
+				x.set(info?.point?.x);
+				y.set(info?.point?.y);
+				onNoteUpdate({
+					...content,
+					position: {
+						x: x.get(),
+						y: y.get(),
+					},
+					text: contents,
+				});
 			}}
 			// transition={{ duration: 0.2 }}
-			bg={colors.bgColor}
-			fg={colors.fgColor}
-			owner={owner}
+			bg={content?.colors?.bgColor}
+			fg={content?.colors?.fgColor}
+			isOwner={isOwner}
 		>
 			<NoteWrapper>
 				{/* <Toast color={colors.fgColor}> */}
-				{/* {owner.toString()} */}
+				{/* {isOwner.toString()} */}
 				{/* {normalizedName} */}
 				{/* </Toast> */}
-
 				{/* <Text 
 				
 				>{normalizedText}</Text> */}
@@ -211,13 +231,13 @@ const Note = ({
 					{toggle ? (
 						<p
 							onDoubleClick={() => {
-								if (owner) {
+								if (isOwner) {
 									setToggle(false);
 									setFocused(true);
 								}
 							}}
 						>
-							{contents.length > 220 ? contents.slice(0, 220) + '...' : contents}
+							{contents?.length > 220 ? contents?.slice(0, 220) + '...' : contents}
 						</p>
 					) : (
 						<TextInput
@@ -236,12 +256,21 @@ const Note = ({
 									setFocused(false);
 									event.preventDefault();
 									event.stopPropagation();
-									onConfirm();
+									// onNoteUpdate({
+									// 	id: id,
+									// 	position: {
+									// 		x: pos[0],
+									// 		y: pos[1],
+									// 	},
+									// 	colors: colors,
+									// 	text: contents,
+									// 	isOwner: isOwnerName,
+									// });
 								}
 							}}
 							value={contents}
 							style={{ resize: 'none', width: '100%', height: '100%' }}
-							autoFocus={true}
+							autoFocus={isOwner}
 							onFocus={() => {
 								setFocused(true);
 							}}
@@ -254,3 +283,4 @@ const Note = ({
 };
 
 export default memo(Note);
+// export default Note;

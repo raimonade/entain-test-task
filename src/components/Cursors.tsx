@@ -2,12 +2,19 @@ import useMousePosition from '@/hooks/useMousePosition';
 import ClientCursorData from '@/models/clientCursorData';
 import { useConnect } from '@/providers/ConnectProvider';
 import { useStore } from '@/store/appStore';
-import React, { useEffect } from 'react';
+import React, { memo, useEffect } from 'react';
 import Cursor from './Cursor';
+import shallow from 'zustand/shallow';
 
 const Cursors = () => {
 	const { socketRef } = useConnect();
-	const { cursors, updateCursor } = useStore();
+	const { cursors, updateCursor } = useStore(
+		(state) => ({
+			cursors: state.cursors,
+			updateCursor: state.updateCursor,
+		}),
+		shallow
+	);
 	const { x, y } = useMousePosition();
 	useEffect(() => {
 		if (socketRef.current) {
@@ -37,4 +44,4 @@ const Cursors = () => {
 	);
 };
 
-export default Cursors;
+export default memo(Cursors);
