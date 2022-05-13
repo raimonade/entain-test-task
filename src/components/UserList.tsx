@@ -1,6 +1,6 @@
 import { useStore } from '@/store/appStore';
 import styled from '@emotion/styled';
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import Tooltip from '@/components/Tooltip';
 import { usePersistentStore } from '@/store/persistentstore';
 

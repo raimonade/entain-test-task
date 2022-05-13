@@ -3,11 +3,10 @@ import Head from 'next/head';
 
 import { ThemeProvider } from '@emotion/react';
 import ThemeToggleContext from '@/providers/ThemeToggleContext';
-import { darkTheme, lightTheme } from '@/styles/theme';
+import { lightTheme } from '@/styles/theme';
 
 import styled from '@emotion/styled';
-import { useDarkMode } from 'usehooks-ts';
-import DotGrid from '../DotGrid';
+import DotGrid from '@/components/DotGrid';
 
 const StyledMain = styled.main`
 	/* // margin-top: 5em; */

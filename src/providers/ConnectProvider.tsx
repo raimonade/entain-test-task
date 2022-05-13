@@ -1,10 +1,10 @@
 import ClientUser from '@/models/clientUser';
 import { useStore } from '@/store/appStore';
 import { usePersistentStore } from '@/store/persistentstore';
-import axios from 'axios';
+// import axios from 'axios';
 import React, { useContext, useState, createContext, useEffect, useRef } from 'react';
-import { io, Socket } from 'socket.io-client';
-import { useModal } from './ModalProvider';
+import { io } from 'socket.io-client';
+// import { useModal } from './ModalProvider';
 
 const ConnectContext = createContext({
 	connected: false,
@@ -30,7 +30,7 @@ export const ConnectProvider = ({ children }) => {
 	const socketRef = useRef(null);
 	// @ts-ignore
 	const { username: savedName, setUsername } = usePersistentStore();
-	const { hideModal } = useModal();
+	// const { hideModal } = useModal();
 
 	useEffect(() => {
 		console.log('UseEffect');

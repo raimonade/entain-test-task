@@ -1,9 +1,7 @@
 import styled from '@emotion/styled';
 import React from 'react';
-import { useDarkMode } from 'usehooks-ts';
 
-const Dots = styled.div<{ dark: boolean }>`
-	/* background-image: url(${({ dark }) => (dark ? './dot-darkmode.png' : './dot.png')}); */
+const Dots = styled.div`
 	background-image: url(./dot.png);
 	background-color: ${(props) => props.theme.color.canvasBackground};
 	background-position: -2px -2px;
@@ -26,10 +24,7 @@ const Dots = styled.div<{ dark: boolean }>`
 `;
 
 const DotGrid = () => {
-	const darkmode = useDarkMode();
-	return (
-		<Dots dark={darkmode.isDarkMode}>DOTS DOTS DOTS DOTS DOTS DOTS DOTS DOTS DOTS DOTS</Dots>
-	);
+	return <Dots />;
 };
 
 export default DotGrid;

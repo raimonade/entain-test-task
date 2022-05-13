@@ -17,7 +17,7 @@ const Button = styled.button<{ dark: boolean }>`
 	}
 `;
 
-export const ThemeModeToggler = (props: any) => {
+export const ThemeModeToggler = () => {
 	const { isDarkTheme, toggleTheme } = React.useContext(ThemeToggleContext);
 
 	return (

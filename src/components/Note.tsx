@@ -1,12 +1,10 @@
 import React, { useState, memo, useMemo, useRef, useEffect } from 'react';
 import styled from '@emotion/styled';
-import { postitColors } from '@/styles/colors';
-import { contrast } from '@/utils/accessible-color';
 import { motion, useSpring } from 'framer-motion';
 import { useOnClickOutside } from 'usehooks-ts';
 import { useStore } from '@/store/appStore';
 import { usePersistentStore } from '@/store/persistentstore';
-import { useConnect } from '@/providers/ConnectProvider';
+// import { useConnect } from '@/providers/ConnectProvider';
 import { User } from '@/components/UserList';
 
 const NoteWrapper = styled.div`
@@ -96,16 +94,14 @@ const Toast = styled.span`
 
 const Note = ({ content, onNoteUpdate }) => {
 	const ref = useRef(null);
-	const { socketRef } = useConnect();
 	const { user } = usePersistentStore();
 	// const isOwner = Math.random() > 0.5;
 	const isOwner = content?.owner === user.username;
 	// const name = 'Rai';
 	// const normalizedName = name.length > 20 ? name.slice(0, 17) + '...' : name;
 	const [toggle, setToggle] = useState(isOwner ? false : true);
-	const { focused, setFocused, userList } = useStore();
+	const { setFocused, userList } = useStore();
 	const [contents, setContents] = useState(content?.text);
-	const [dragging, setDragging] = useState(false);
 	const config = {
 		duration: 0.3,
 	};
@@ -244,7 +240,7 @@ const Note = ({ content, onNoteUpdate }) => {
 					) : (
 						<TextInput
 							ref={ref}
-							onKeyUp={(e) => {
+							onKeyUp={() => {
 								onNoteUpdate({
 									...content,
 									position: {

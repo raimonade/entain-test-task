@@ -1,4 +1,4 @@
-import { useConnect } from '@/providers/ConnectProvider';
+// import { useConnect } from '@/providers/ConnectProvider';
 import { useModal } from '@/providers/ModalProvider';
 import styled from '@emotion/styled';
 import React, { useEffect, useState } from 'react';

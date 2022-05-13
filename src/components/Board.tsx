@@ -1,4 +1,3 @@
-import useMousePosition from '@/hooks/useMousePosition';
 import { useConnect } from '@/providers/ConnectProvider';
 import { useStore } from '@/store/appStore';
 import { postitColors } from '@/styles/colors';
@@ -8,7 +7,6 @@ import React, { memo, useEffect, useRef, useState } from 'react';
 import Cursors from './Cursors';
 import { v4 as uuidv4 } from 'uuid';
 import Note from './Note';
-import Coords from '@/models/coords';
 import { usePersistentStore } from '@/store/persistentstore';
 import ClientNoteData from '@/models/clientNoteData';
 import shallow from 'zustand/shallow';
@@ -33,15 +31,11 @@ function Component({ index, onNoteUpdate }) {
 	// return <div>NOTE</div>;
 }
 
-const MemoizedComponent = memo(Component);
-
 const Board = () => {
 	const { socketRef } = useConnect();
-	const {} = useStore();
-	const { focused, updateNote, setFocused, addNote } = useStore(
+	const { focused, setFocused, addNote } = useStore(
 		(state) => ({
 			focused: state.focused,
-			updateNote: state.updateNote,
 			setFocused: state.setFocused,
 			addNote: state.addNote,
 		}),
