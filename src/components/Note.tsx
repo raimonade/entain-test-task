@@ -191,7 +191,7 @@ const Note = ({ content, onNoteUpdate }) => {
 			// 	x: pos[0] - 20,
 			// 	y: pos[1] - 40,
 			// }}
-			dragListener={false}
+			// dragListener={false}
 			whileDrag={{
 				scale: 1.07,
 				zIndex: 2,
