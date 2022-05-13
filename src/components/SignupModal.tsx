@@ -81,10 +81,15 @@ const ModalContent = (props) => {
 			.post(`/api/register/${username.toString()}`)
 			.catch((e) => {
 				console.error('FAILED REGISTRATION:', e);
+				setError(
+					'server',
+					'Failed to connect to the server, I dont have a fix, try resetting the page'
+				);
 				return;
 			})
 			.then(() => {
 				updateUser('username', username);
+				setError('server', null);
 			});
 	};
 
@@ -97,7 +102,12 @@ const ModalContent = (props) => {
 					<Input
 						autoFocus={true}
 						onKeyDown={(e) => {
-							if (errors.username || username.length > 20 || username.length < 3) {
+							if (
+								errors.username ||
+								errors.server ||
+								username.length > 20 ||
+								username.length < 3
+							) {
 								return;
 							}
 							if (e.keyCode == 13) {
@@ -116,6 +126,7 @@ const ModalContent = (props) => {
 						value={username}
 					/>
 					<ErrorLabel>{errors?.username && errors.username}</ErrorLabel>
+					<ErrorLabel>{errors?.server && errors.server}</ErrorLabel>
 				</LabelContainer>
 			</Label>
 			<ButtonWrapper>
