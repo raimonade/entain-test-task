@@ -1,8 +1,7 @@
-import { NextApiRequest } from 'next';
-import { NextApiResponseServerIO } from '@/types/next';
+import type { NextApiRequest, NextApiResponse } from 'next';
 import axios, { AxiosResponse } from 'axios';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponseServerIO) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 	// send request to server /register with username
 	const { username } = req.query as { username: string };
 	console.log('APIURL', process.env.SOCKET_URL);
