@@ -53,6 +53,11 @@ const store = (set) =>
 				state.cursors = cursors;
 			});
 		},
+		setNotes: (notes: any) => {
+			set((state) => {
+				state.notes = notes;
+			});
+		},
 		updateCursor: (data: ClientCursorData) => {
 			set((state) => {
 				// find the cursor with the same id then change the data
@@ -69,7 +74,6 @@ const store = (set) =>
 						state.cursors = [data];
 					}
 				}
-				console.log(state.cursors);
 			});
 		},
 		setError: (errorType: string, error: string) =>

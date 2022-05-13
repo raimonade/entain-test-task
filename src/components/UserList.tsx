@@ -64,12 +64,6 @@ const UserIcon = styled.div<{ bgColor: string; fgColor: string }>`
 const User = ({ content }) => {
 	const firstLetter = content?._name?.charAt(0);
 	const { user } = usePersistentStore();
-	useEffect(() => {
-		if (content) {
-			console.log('content', content);
-			console.log('user', user);
-		}
-	}, [content]);
 
 	const isYou = useMemo(() => {
 		// if user is not null check if user._socketId is equal to content._socketId

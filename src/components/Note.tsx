@@ -1,10 +1,12 @@
-import React, { useState, memo, useMemo, useRef } from 'react';
+import React, { useState, memo, useMemo, useRef, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { postitColors } from '@/styles/colors';
 import { contrast } from '@/utils/accessible-color';
 import { motion } from 'framer-motion';
 import { useOnClickOutside } from 'usehooks-ts';
 import { useStore } from '@/store/appStore';
+import { usePersistentStore } from '@/store/persistentstore';
+import { useConnect } from '@/providers/ConnectProvider';
 
 const NoteWrapper = styled.div`
 	position: relative;
@@ -95,26 +97,39 @@ const Toast = styled.span`
 `;
 
 const Note = ({
+	id = null,
 	text = '',
 	initialX = 0,
 	initialY = 0,
 	colors = { fgColor: postitColors.default, bgColor: '#000' },
+	ownerName = '',
+	onNoteCreate,
+	onNoteUpdate,
 }) => {
 	const ref = useRef(null);
-
+	const { socketRef } = useConnect();
+	const { user } = usePersistentStore();
 	// const owner = Math.random() > 0.5;
-	const owner = true;
+	const owner = ownerName === user.username || ownerName === '';
 	// const name = 'Rai';
 	// const normalizedName = name.length > 20 ? name.slice(0, 17) + '...' : name;
 	const [toggle, setToggle] = useState(false);
 	const { focused, setFocused } = useStore();
 	const [contents, setContents] = useState(text);
+	const [pos, setPos] = useState([initialX, initialY]);
 	// console.log(colors, 'colors');x
 	useOnClickOutside(ref, () => {
 		setToggle(true);
 		// setFocused(false);
-		console.log('clicked outside note');
+		onConfirm();
 	});
+
+	const onConfirm = () => {
+		if (!ownerName && onNoteCreate) {
+			// 	console.log('EMIT NEW NOTE');
+			onNoteCreate(contents, pos[0], pos[1], colors, user);
+		}
+	};
 
 	function downscale(
 		length: number,
@@ -131,6 +146,14 @@ const Note = ({
 		() => (contents?.length > 0 ? downscale(contents?.length, 220, 24, 16) : 14),
 		[contents]
 	);
+
+	// useEffect(() => {
+	// 	console.log('owner', ownerName);
+	// 	console.log('focused', focused);
+	// 	console.log('onNoteCreate', onNoteCreate);
+
+	// 	// setUserList(userList);
+	// }, [ownerName, pos, colors, contents, user, focused, onNoteCreate]);
 
 	return (
 		<AnimatedNote
@@ -156,6 +179,20 @@ const Note = ({
 					  }
 					: null
 			}
+			// typescript messing up types between motion.div and styled.div
+			// so ignoring that shit bc i cba to fix it properly atm
+			// @ts-ignore
+			onDrag={(event, info) => {
+				const x = pos[0] - info.offset.x;
+				const y = pos[1] - info.offset.y;
+				onNoteUpdate(id, { x, y });
+			}}
+			// @ts-ignore
+			onDragEnd={(event, info) => {
+				const x = pos[0] - info.offset.x;
+				const y = pos[1] - info.offset.y;
+				setPos([x, y]);
+			}}
 			// transition={{ duration: 0.2 }}
 			bg={colors.bgColor}
 			fg={colors.fgColor}
@@ -191,14 +228,15 @@ const Note = ({
 								}
 							}}
 							onKeyDown={(event) => {
-								if (event.keyCode == 13 && event.shiftKey) {
-									return;
-								}
+								// if (event.keyCode == 13 && event.shiftKey) {
+								// 	return;
+								// }
 								if (event.key === 'Enter' || event.key === 'Escape') {
 									setToggle(true);
 									setFocused(false);
 									event.preventDefault();
 									event.stopPropagation();
+									onConfirm();
 								}
 							}}
 							value={contents}

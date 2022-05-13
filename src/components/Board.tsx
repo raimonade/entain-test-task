@@ -23,9 +23,10 @@ const BoardContainer = styled.div<{ cursor: string }>`
 
 const Board = () => {
 	const { socketRef } = useConnect();
-	const { focused, setFocused } = useStore();
+	const { focused, notes, setFocused } = useStore();
 	const [cursor, setCursor] = useState('default');
-
+	const [items, setItems] = useState(notes);
+	// dont merge items, create a completely seperate item
 	useEffect(() => {
 		if (focused) {
 			setCursor('text');
@@ -34,7 +35,31 @@ const Board = () => {
 		setCursor('default');
 	}, [focused]);
 
-	const [notes, addNotes] = useState([]);
+	useEffect(() => {
+		if (notes) {
+			setItems(notes);
+			return;
+		}
+	}, [notes]);
+
+	const onNoteCreate = async (text, x, y, colors, user) => {
+		console.log('NEW NOTE');
+		socketRef.current.emit('newNote', {
+			text: text,
+			position: {
+				x,
+				y,
+			},
+			colors: {
+				fgColor: colors.fgColor,
+				bgColor: colors.bgColor,
+			},
+			owner: user.username,
+		});
+	};
+
+	const onNoteUpdate = async () => {};
+
 	const createNewNote = (e) => {
 		// // add lorem ipsum object to notes
 		console.log(focused);
@@ -50,16 +75,19 @@ const Board = () => {
 				Math.floor(Math.random() * Object.values(postitColors).length)
 			];
 		const fg = contrast(bg);
-		addNotes([
-			...notes,
+		setItems([
+			...items,
 			{
 				text: '',
-				x: e.clientX - 100,
-				y: e.clientY - 100,
-				colors: {
+				_position: {
+					x: e.clientX - 100,
+					y: e.clientY - 100,
+				},
+				_colors: {
 					bgColor: bg,
 					fgColor: fg,
 				},
+				owner: '',
 			},
 		]);
 	};
@@ -67,13 +95,16 @@ const Board = () => {
 	return (
 		<BoardContainer onClick={createNewNote} cursor={cursor}>
 			<Cursors></Cursors>
-			{notes.map((note, i) => (
+			{items?.map((note, i) => (
 				<Note
 					key={i}
-					colors={note.colors}
+					colors={note._colors}
 					text={note.text}
-					initialX={note.x}
-					initialY={note.y}
+					initialX={note._position.x}
+					initialY={note._position.y}
+					ownerName={note.owner}
+					onNoteCreate={onNoteCreate}
+					onNoteUpdate={onNoteUpdate}
 				/>
 			))}
 		</BoardContainer>

@@ -20,10 +20,8 @@ const Cursors = () => {
 		if (socketRef.current) {
 			socketRef.current.on('onmouseupdate', (cursor: ClientCursorData) => {
 				if (cursor) {
-					console.log('updateCursorPlacement', cursor);
 					updateCursor(cursor);
 				}
-
 				// setUserList(userList);
 			});
 		}
@@ -31,8 +29,9 @@ const Cursors = () => {
 
 	return (
 		<div>
-			{cursors?.map((cursor: any) => {
-				return <Cursor key={cursor.socketId} content={cursor} />;
+			{cursors?.map((cursor: any, i) => {
+				// return <Cursor key={cursor.socketId} content={cursor} />;
+				return <Cursor key={i} content={cursor} />;
 			})}
 		</div>
 	);

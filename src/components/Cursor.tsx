@@ -5,24 +5,32 @@ import { useStore } from '@/store/appStore';
 
 const CursorContainer = styled.div<{ bgColor: string; fgColor: string; x: number; y: number }>`
 	position: absolute;
+	display: flex;
+	align-items: flex-end;
 	transform: translate(${(props) => props.x}px, ${(props) => props.y}px);
 	--bg-color: ${(props) => props.bgColor};
 	--fg-color: ${(props) => props.fgColor};
 	svg {
 		width: 20px;
 		height: auto;
+		stroke-width: 1px;
+		stroke: var(--fg-color);
 		path {
 			fill: var(--bg-color);
 		}
 	}
+	pointer-events: none;
 `;
 
 const Username = styled.span`
+	display: flex;
 	font-size: 12px;
 	font-weight: 500;
 	color: var(--fg-color);
 	background-color: var(--bg-color);
 	padding: 5px;
+	margin-bottom: -20px;
+	margin-left: -10px;
 `;
 
 const Cursor = ({ content }) => {
