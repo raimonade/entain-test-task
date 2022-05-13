@@ -37,6 +37,7 @@ export const ConnectProvider = ({ children }) => {
 		if (!connected && user.username) {
 			console.log('Attempting Socket Connection...');
 			// connect to socket server
+			console.log('process.env.SOCKET_URL', process.env.SOCKET_URL);
 			socketRef.current = io(process.env.SOCKET_URL, {});
 
 			// log socket connection

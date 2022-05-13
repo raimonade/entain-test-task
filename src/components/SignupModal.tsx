@@ -148,7 +148,7 @@ const SignupModal = () => {
 		console.log('REGISTERING USER:', username);
 
 		await axios
-			.post(`${process.env.API_URL}/api/register/${username}`)
+			.post(`/api/register/${username}`)
 			.catch((e) => {
 				console.error('FAILED REGISTRATION:', e);
 				return;
