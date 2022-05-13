@@ -35,7 +35,7 @@ const Cursors = () => {
 	}, [socketRef.current]);
 
 	return (
-		<div>
+		<div style={{ zIndex: 1 }}>
 			{cursors?.map((cursor: any, i) => {
 				// return <Cursor key={cursor.socketId} content={cursor} />;
 				return <Cursor key={i} content={cursor} />;

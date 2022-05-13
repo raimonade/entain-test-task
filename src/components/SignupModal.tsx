@@ -57,7 +57,8 @@ const ButtonWrapper = styled.div`
 	margin-top: 20px;
 `;
 
-const ModalContent = () => {
+const ModalContent = (props) => {
+	console.log(props);
 	const [username, setUsername] = useState('');
 	const { hideModal } = useModal();
 	const { errors, setError } = useStore();
@@ -77,7 +78,7 @@ const ModalContent = () => {
 		console.log('REGISTERING USER:', username);
 
 		await axios
-			.post(`${process.env.API_URL}/api/register/${username.toString()}`)
+			.post(`/api/register/${username.toString()}`)
 			.catch((e) => {
 				console.error('FAILED REGISTRATION:', e);
 				return;
@@ -94,6 +95,15 @@ const ModalContent = () => {
 					<span>Username</span>
 					<SmallText>Please choose a username between 3 and 20 characters</SmallText>
 					<Input
+						autoFocus={true}
+						onKeyDown={(e) => {
+							if (errors.username || username.length > 20 || username.length < 3) {
+								return;
+							}
+							if (e.keyCode == 13) {
+								handleSubmit();
+							}
+						}}
 						onChange={(e) => {
 							e.preventDefault();
 							setError('username', null);
@@ -131,7 +141,7 @@ const SignupModal = () => {
 		if (user.username) {
 			login();
 		}
-		showModal(ModalContent);
+		showModal(ModalContent, { onSubmit: login });
 	}, [user.username]);
 
 	const register = async (username) => {

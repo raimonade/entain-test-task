@@ -7,6 +7,7 @@ import { useOnClickOutside } from 'usehooks-ts';
 import { useStore } from '@/store/appStore';
 import { usePersistentStore } from '@/store/persistentstore';
 import { useConnect } from '@/providers/ConnectProvider';
+import { User } from '@/components/UserList';
 
 const NoteWrapper = styled.div`
 	position: relative;
@@ -32,10 +33,7 @@ const NoteContainer = styled.div<{ bg: string; fg: string; isOwner: boolean }>`
 	/* border: 1px solid #00ff00; */
 	/* border: 1px solid #ffd700; */
 	border: ${(props) => (!props.isOwner ? 'none' : '3px solid' + props.theme.color.text)};
-
-	span {
-		opacity: ${(props) => (props.isOwner ? 1 : 0.5)};
-	}
+	opacity: ${(props) => (props.isOwner ? 1 : 0.75)};
 `;
 
 const AnimatedNote = motion(NoteContainer);
@@ -83,8 +81,8 @@ const Toast = styled.span`
 	display: flex;
 	justify-content: flex-start;
 	position: absolute;
-	right: 10px;
-	bottom: 10px;
+	right: 0px;
+	bottom: 5px;
 	font-size: 15px;
 	/* font-weight: bold; */
 	font-weight: 500;
@@ -105,7 +103,7 @@ const Note = ({ content, onNoteUpdate }) => {
 	// const name = 'Rai';
 	// const normalizedName = name.length > 20 ? name.slice(0, 17) + '...' : name;
 	const [toggle, setToggle] = useState(isOwner ? false : true);
-	const { focused, setFocused } = useStore();
+	const { focused, setFocused, userList } = useStore();
 	const [contents, setContents] = useState(content?.text);
 	const [dragging, setDragging] = useState(false);
 	const config = {
@@ -113,6 +111,10 @@ const Note = ({ content, onNoteUpdate }) => {
 	};
 	const x = useSpring(0, config);
 	const y = useSpring(0, config);
+	const userData = useMemo(
+		() => userList?.find((useritem) => useritem._name === content?.owner),
+		[content, userList]
+	);
 
 	useEffect(() => {
 		// setPos([content?.position?.x, content?.position?.y]);
@@ -121,6 +123,9 @@ const Note = ({ content, onNoteUpdate }) => {
 		setContents(content?.text);
 		console.log(content.position);
 	}, [content.position]);
+	useEffect(() => {
+		setContents(content?.text);
+	}, [content.text]);
 
 	useOnClickOutside(ref, () => {
 		setToggle(true);
@@ -220,13 +225,10 @@ const Note = ({ content, onNoteUpdate }) => {
 			isOwner={isOwner}
 		>
 			<NoteWrapper>
-				{/* <Toast color={colors.fgColor}> */}
-				{/* {isOwner.toString()} */}
-				{/* {normalizedName} */}
-				{/* </Toast> */}
-				{/* <Text 
-				
-				>{normalizedText}</Text> */}
+				<Toast>
+					<User content={userData} />
+				</Toast>
+
 				<Text style={{ fontSize: fontSize }}>
 					{toggle ? (
 						<p
@@ -242,30 +244,39 @@ const Note = ({ content, onNoteUpdate }) => {
 					) : (
 						<TextInput
 							ref={ref}
+							onKeyUp={(e) => {
+								onNoteUpdate({
+									...content,
+									position: {
+										x: x.get(),
+										y: y.get(),
+									},
+									text: contents,
+								});
+							}}
 							onChange={(event) => {
 								if (event.target.value.length < 220) {
 									setContents(event.target.value);
+									// onNoteUpdate({
+									// 	...content,
+									// 	position: {
+									// 		x: x.get(),
+									// 		y: y.get(),
+									// 	},
+									// 	text: contents,
+									// });
 								}
 							}}
 							onKeyDown={(event) => {
 								// if (event.keyCode == 13 && event.shiftKey) {
 								// 	return;
 								// }
+
 								if (event.key === 'Enter' || event.key === 'Escape') {
 									setToggle(true);
 									setFocused(false);
 									event.preventDefault();
 									event.stopPropagation();
-									// onNoteUpdate({
-									// 	id: id,
-									// 	position: {
-									// 		x: pos[0],
-									// 		y: pos[1],
-									// 	},
-									// 	colors: colors,
-									// 	text: contents,
-									// 	isOwner: isOwnerName,
-									// });
 								}
 							}}
 							value={contents}

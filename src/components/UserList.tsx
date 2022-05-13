@@ -1,6 +1,4 @@
 import { useStore } from '@/store/appStore';
-import { postitColors } from '@/styles/colors';
-import { contrast } from '@/utils/accessible-color';
 import styled from '@emotion/styled';
 import React, { useEffect, useMemo } from 'react';
 import Tooltip from '@/components/Tooltip';
@@ -61,7 +59,8 @@ const UserIcon = styled.div<{ bgColor: string; fgColor: string }>`
 	}
 `;
 
-const User = ({ content }) => {
+export const User = ({ content }) => {
+	console.log(content);
 	const firstLetter = content?._name?.charAt(0);
 	const { user } = usePersistentStore();
 
@@ -82,7 +81,7 @@ const User = ({ content }) => {
 
 	return (
 		<Tooltip
-			content={isYou ? `${content?._name} (you)` : content._name}
+			content={isYou ? `${content?._name} (you)` : content?._name}
 			offsetX={-5}
 			offsetY={5}
 		>

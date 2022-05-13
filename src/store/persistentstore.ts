@@ -27,7 +27,8 @@ export const usePersistentStore = create<IpersistantStore>(
 		{
 			name: 'entain_test_task', // unique name
 			// for now setting it as sessionStorage for testing
-			getStorage: () => sessionStorage, // (optional) by default, 'localStorage' is used
+			// getStorage: () => sessionStorage, // (optional) by default, 'localStorage' is used
+			getStorage: () => localStorage, // (optional) by default, 'localStorage' is used
 		}
 	)
 );
