@@ -15,6 +15,7 @@ const Cursors = () => {
 		}),
 		shallow
 	);
+	console.log(cursors);
 	const { x, y } = useMousePosition();
 	useEffect(() => {
 		if (socketRef.current) {

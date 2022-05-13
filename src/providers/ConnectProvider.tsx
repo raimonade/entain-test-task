@@ -25,7 +25,7 @@ export const useConnect = () => {
 export const ConnectProvider = ({ children }) => {
 	// const [state, setState] = useState({ component: null, props: null });
 	const [connected, setConnected] = useState<boolean>(false);
-	const { setCursors, setNotes, updateNote, addNote, setUserList } = useStore();
+	const { setCursors, setNotes, removeNote, updateNote, addNote, setUserList } = useStore();
 	const { user, updateUser } = usePersistentStore();
 	const socketRef = useRef(null);
 	// @ts-ignore
@@ -54,7 +54,10 @@ export const ConnectProvider = ({ children }) => {
 			});
 			socketRef.current.on('cursors', (cursors: any) => {
 				console.log('Got Cursors!', cursors);
-				setCursors(cursors);
+				const filteredCursors = cursors.filter((cursor: any) => {
+					return cursor.socketId !== user.socketId;
+				});
+				setCursors(filteredCursors);
 			});
 			socketRef.current.on('notes', (notes: any) => {
 				console.log('Got Notes!', notes);
@@ -67,6 +70,10 @@ export const ConnectProvider = ({ children }) => {
 			socketRef.current.on('onnoteupdate', (note: any) => {
 				console.log('Note Update!', note);
 				updateNote(note);
+			});
+			socketRef.current.on('onnoteremove', (id: string) => {
+				console.log('Note NoteRemove!', id);
+				removeNote(id);
 			});
 
 			// 	// update chat on new message dispatched

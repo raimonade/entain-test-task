@@ -1,11 +1,13 @@
 import React, { useState, memo, useMemo, useRef, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { motion, useSpring } from 'framer-motion';
-import { useOnClickOutside } from 'usehooks-ts';
+// import { useOnClickOutside } from 'usehooks-ts';
 import { useStore } from '@/store/appStore';
 import { usePersistentStore } from '@/store/persistentstore';
+import { ReactComponent as TrashIcon } from '@/assets/trash.svg';
 // import { useConnect } from '@/providers/ConnectProvider';
 import { User } from '@/components/UserList';
+// import useMousePosition from '@/hooks/useMousePosition';
 
 const NoteWrapper = styled.div`
 	position: relative;
@@ -35,6 +37,26 @@ const NoteContainer = styled.div<{ bg: string; fg: string; isOwner: boolean }>`
 `;
 
 const AnimatedNote = motion(NoteContainer);
+
+const DeleteButton = styled.button`
+	position: absolute;
+	bottom: 10px;
+	left: 10px;
+	width: 32px;
+	height: 32px;
+	background: none;
+	pointer: cursor;
+	border: none;
+	background: rgba(23, 23, 23, 0.5);
+	border-radius: 5px;
+	padding: 2px;
+	z-index: 20;
+	svg {
+		path {
+			fill: white;
+		}
+	}
+`;
 
 const Text = styled.span`
 	-webkit-user-select: none;
@@ -92,7 +114,7 @@ const Toast = styled.span`
 	user-select: none;
 `;
 
-const Note = ({ content, onNoteUpdate }) => {
+const Note = ({ content, onNoteUpdate, onNoteRemove = null }) => {
 	const ref = useRef(null);
 	const { user } = usePersistentStore();
 	// const isOwner = Math.random() > 0.5;
@@ -111,7 +133,7 @@ const Note = ({ content, onNoteUpdate }) => {
 		() => userList?.find((useritem) => useritem._name === content?.owner),
 		[content, userList]
 	);
-
+	// const { x: mouseX, y: mouseY } = useMousePosition();
 	useEffect(() => {
 		// setPos([content?.position?.x, content?.position?.y]);
 		x.set(content?.position?.x);
@@ -123,18 +145,18 @@ const Note = ({ content, onNoteUpdate }) => {
 		setContents(content?.text);
 	}, [content.text]);
 
-	useOnClickOutside(ref, () => {
-		setToggle(true);
-		// setFocused(false);
-		onNoteUpdate({
-			...content,
-			position: {
-				x: x.get(),
-				y: y.get(),
-			},
-			text: contents,
-		});
-	});
+	// useOnClickOutside(ref, () => {
+	// 	setToggle(true);
+	// 	// setFocused(false);
+	// 	onNoteUpdate({
+	// 		...content,
+	// 		position: {
+	// 			x: x.get(),
+	// 			y: y.get(),
+	// 		},
+	// 		text: contents,
+	// 	});
+	// });
 
 	function downscale(
 		length: number,
@@ -168,6 +190,7 @@ const Note = ({ content, onNoteUpdate }) => {
 			// 	x: pos[0] - 20,
 			// 	y: pos[1] - 40,
 			// }}
+			dragListener={false}
 			whileDrag={{
 				scale: 1.07,
 				zIndex: 2,
@@ -190,8 +213,9 @@ const Note = ({ content, onNoteUpdate }) => {
 			// so ignoring that shit bc i cba to fix it properly atm
 			// @ts-ignore
 			onDrag={(event, info) => {
-				x.set(info?.point?.x - 100);
-				y.set(info?.point?.y - 100);
+				// cheating with position
+				x.set(info?.point?.x - 100 - 40);
+				y.set(info?.point?.y - 100 - 40);
 				// setPos([x, y]);
 				onNoteUpdate({
 					...content,
@@ -204,8 +228,8 @@ const Note = ({ content, onNoteUpdate }) => {
 			}}
 			// @ts-ignore
 			onDragEnd={(event, info) => {
-				x.set(info?.point?.x);
-				y.set(info?.point?.y);
+				x.set(info?.point?.x - 100 - 40);
+				y.set(info?.point?.y - 100 - 40);
 				onNoteUpdate({
 					...content,
 					position: {
@@ -238,52 +262,79 @@ const Note = ({ content, onNoteUpdate }) => {
 							{contents?.length > 220 ? contents?.slice(0, 220) + '...' : contents}
 						</p>
 					) : (
-						<TextInput
-							ref={ref}
-							onKeyUp={() => {
-								onNoteUpdate({
-									...content,
-									position: {
-										x: x.get(),
-										y: y.get(),
-									},
-									text: contents,
-								});
-							}}
-							onChange={(event) => {
-								if (event.target.value.length < 220) {
-									setContents(event.target.value);
-									// onNoteUpdate({
-									// 	...content,
-									// 	position: {
-									// 		x: x.get(),
-									// 		y: y.get(),
-									// 	},
-									// 	text: contents,
-									// });
-								}
-							}}
-							onKeyDown={(event) => {
-								// if (event.keyCode == 13 && event.shiftKey) {
-								// 	return;
-								// }
+						<>
+							<TextInput
+								ref={ref}
+								onKeyUp={() => {
+									onNoteUpdate({
+										...content,
+										position: {
+											x: x.get(),
+											y: y.get(),
+										},
+										text: contents,
+									});
+								}}
+								onChange={(event) => {
+									if (event.target.value.length < 220) {
+										setContents(event.target.value);
+										// onNoteUpdate({
+										// 	...content,
+										// 	position: {
+										// 		x: x.get(),
+										// 		y: y.get(),
+										// 	},
+										// 	text: contents,
+										// });
+									}
+								}}
+								onKeyDown={(event) => {
+									// if (event.keyCode == 13 && event.shiftKey) {
+									// 	return;
+									// }
 
-								if (event.key === 'Enter' || event.key === 'Escape') {
+									if (event.key === 'Enter' || event.key === 'Escape') {
+										setToggle(true);
+										setFocused(false);
+										event.preventDefault();
+										event.stopPropagation();
+									}
+								}}
+								onBlur={() => {
 									setToggle(true);
-									setFocused(false);
-									event.preventDefault();
-									event.stopPropagation();
-								}
-							}}
-							value={contents}
-							style={{ resize: 'none', width: '100%', height: '100%' }}
-							autoFocus={isOwner}
-							onFocus={() => {
-								setFocused(true);
-							}}
-						/>
+									// setFocused(false);
+									onNoteUpdate({
+										...content,
+										position: {
+											x: x.get(),
+											y: y.get(),
+										},
+										text: contents,
+									});
+								}}
+								value={contents}
+								style={{ resize: 'none', width: '100%', height: '100%' }}
+								autoFocus={isOwner}
+								onFocus={() => {
+									setFocused(true);
+								}}
+							/>
+						</>
 					)}
 				</Text>
+				{/* yeah so the event handling on framer motion is dogshit */}
+				{/* I should have used other module for this, but oh well */}
+				{/* {onNoteRemove && isOwner && (
+					<DeleteButton
+						onClick={(e) => {
+							e.preventDefault();
+							e.stopPropagation();
+							onNoteRemove(content.id);
+						}}
+					>
+						<TrashIcon />
+					</DeleteButton>
+				)} */}
 			</NoteWrapper>
 		</AnimatedNote>
 	);

@@ -13,6 +13,7 @@ export interface IAppStore {
 	notes: any;
 	cursors: any;
 	setNotes(notes: any): void;
+	removeNote(note: any): void;
 	addNote(note: any): void;
 	updateNote(note: any): void;
 	setCursors(cursors: any): void;
@@ -53,6 +54,15 @@ const store = (set) =>
 		setCursors: (cursors: any) => {
 			set((state) => {
 				state.cursors = cursors;
+			});
+		},
+		removeNote: (id: any) => {
+			set((state) => {
+				// find index of note matching id
+				const index = state.notes.findIndex((note) => note.id === id);
+				if (index > -1) {
+					state.notes.splice(index, 1);
+				}
 			});
 		},
 		setNotes: (notes: any) => {

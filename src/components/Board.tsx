@@ -23,21 +23,24 @@ const BoardContainer = styled.div<{ cursor: string }>`
 	cursor: ${({ cursor }) => cursor};
 `;
 
-function Component({ index, onNoteUpdate }) {
+function Component({ index, onNoteUpdate, onNoteRemove }) {
 	const dataRef = useRef(useStore.getState().notes[index]);
 	// Connect to the store on mount, disconnect on unmount, catch state-changes in a reference
 	useEffect(() => useStore.subscribe((state) => (dataRef.current = state.notes[index])), []);
-	return <Note content={dataRef.current} onNoteUpdate={onNoteUpdate} />;
+	return (
+		<Note content={dataRef.current} onNoteRemove={onNoteRemove} onNoteUpdate={onNoteUpdate} />
+	);
 	// return <div>NOTE</div>;
 }
 
 const Board = () => {
 	const { socketRef } = useConnect();
-	const { focused, setFocused, addNote } = useStore(
+	const { focused, setFocused, removeNote, addNote } = useStore(
 		(state) => ({
 			focused: state.focused,
 			setFocused: state.setFocused,
 			addNote: state.addNote,
+			removeNote: state.removeNote,
 		}),
 		shallow
 	);
@@ -57,6 +60,11 @@ const Board = () => {
 	}, [focused]);
 
 	// const createNewNote = (position:Coords, colour: string) => {
+	const onNoteRemove = (id) => {
+		removeNote(id);
+		socketRef.current.emit('newNote', id);
+	};
+
 	const createNewNote = (e) => {
 		// // add lorem ipsum object to notes
 		console.log(focused);
@@ -105,7 +113,12 @@ const Board = () => {
 		<BoardContainer onClick={createNewNote} cursor={cursor}>
 			<Cursors></Cursors>
 			{notes?.map((note, i) => (
-				<Component onNoteUpdate={onNoteUpdate} key={note.id} index={i} />
+				<Component
+					onNoteRemove={onNoteRemove}
+					onNoteUpdate={onNoteUpdate}
+					key={note.id}
+					index={i}
+				/>
 				// <h1 key={i}>NOTE</h1>
 			))}
 		</BoardContainer>

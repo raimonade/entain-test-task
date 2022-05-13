@@ -1,6 +1,6 @@
 import { useStore } from '@/store/appStore';
 import styled from '@emotion/styled';
-import React, { useMemo } from 'react';
+import React, { memo, useMemo } from 'react';
 import Tooltip from '@/components/Tooltip';
 import { usePersistentStore } from '@/store/persistentstore';
 
@@ -59,8 +59,7 @@ const UserIcon = styled.div<{ bgColor: string; fgColor: string }>`
 	}
 `;
 
-export const User = ({ content }) => {
-	console.log(content);
+const UserComponent = ({ content }) => {
 	const firstLetter = content?._name?.charAt(0);
 	const { user } = usePersistentStore();
 
@@ -91,5 +90,7 @@ export const User = ({ content }) => {
 		</Tooltip>
 	);
 };
+
+export const User = memo(UserComponent);
 
 export default UserList;
